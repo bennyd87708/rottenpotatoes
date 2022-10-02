@@ -4,7 +4,7 @@ class Movie < ActiveRecord::Base
   end
 
   def self.with_ratings(ratings_list)
-    if ratings_list.empty?
+    if ratings_list.length < 1
       return Movie.all
     else
       return Movie.where(rating: ratings_list.map{|rating| rating.upcase})
