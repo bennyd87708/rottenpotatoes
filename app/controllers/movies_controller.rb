@@ -7,32 +7,50 @@ class MoviesController < ApplicationController
     end
   
     def index
+      sort = ''
+      @title_header = ''
+      @release_date_header = ''
+      @ratings_to_show = {}
       @all_ratings = Movie.all_ratings
 
+      if session[:sort]
+        sort = session[:sort]
+      end
+      if params[:sort]
+        sort = params[:sort]
+      end
+      if sort == 'title'
+        @title_header = 'hilite bg-warning'
+      end
+      if sort == 'release_date'
+        @release_date_header = 'hilite bg-warning'
+      end
+      if session[:ratings]
+        @ratings_to_show = session[:ratings]
+      end
+      if params[:ratings]
+        @ratings_to_show = params[:ratings]
+      end
+      if @ratings_to_show.empty?
+        @ratings_to_show = Hash[@all_ratings.map {|rating| [rating, rating]}]
+      end
 
-      if !session.key?(:ratings) || !session.key?(:sort_by)
-        @all_ratings_hash = Hash[@all_ratings.collect {|key| [key, '1']}]
-        session[:ratings] = @all_ratings_hash if !session.key?(:ratings)
-        session[:sort_by] = '' if !session.key?(:sort_by)
-        redirect_to movies_path(:ratings => @all_ratings_hash, :sort_by => '') and return
+      if params[:sort] != session[:sort]
+        session[:sort] = sort
+        redirect_to :sort => sort, :ratings => @ratings_to_show and return
+      end
+      if params[:ratings] != session[:ratings]
+        session[:ratings] = @ratings_to_show
+        redirect_to :sort => sort, :ratings => @ratings_to_show and return
       end
       
-      if (!params.has_key?(:ratings) && session.key?(:ratings)) ||
-        (!params.has_key?(:sort_by) && session.key?(:sort_by))
-        redirect_to movies_path(:ratings => Hash[session[:ratings].collect {|key| [key, '1']}], :sort_by => session[:sort_by]) and return
+      @movies = Movie.with_ratings(@ratings_to_show.keys)
+      if sort == 'title'
+        @movies = @movies.order({:title => :asc})
       end
-
-      @ratings_to_show = params[:ratings].keys
-      
-      @ratings_to_show_hash = Hash[@ratings_to_show.collect {|key| [key, '1']}]
-      session[:ratings] = @ratings_to_show
-      
-      @movies = Movie.with_ratings(@ratings_to_show)
-      
-      @movies = @movies.order(params[:sort_by]) if params[:sort_by] != ''
-      session[:sort_by] = params[:sort_by]
-      @title_header = (params[:sort_by]=='title') ? 'hilite bg-warning' : ''
-      @release_date_header = (params[:sort_by]=='release_date') ? 'hilite bg-warning' : ''
+      if sort == 'release_date'
+        @movies = @movies.order({:release_date => :asc})
+      end
     end
   
   
