@@ -41,7 +41,7 @@ class MoviesController < ApplicationController
         redirect_to :sort => sort, :ratings => @ratings_to_show and return
       end
 
-      @movies = Movie.with_ratings(@ratings_to_show)
+      @movies = Movie.with_ratings(@ratings_to_show.keys)
       if sort == 'title'
         @movies = @movies.order({:title => :asc})
       end
