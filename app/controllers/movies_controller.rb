@@ -43,8 +43,10 @@ class MoviesController < ApplicationController
         session[:ratings] = @ratings_to_show
         redirect_to :sort => sort, :ratings => @ratings_to_show and return
       end
-      
-      @movies = Movie.with_ratings(@ratings_to_show.keys)
+
+      if !@ratings_to_show.empty?
+        @movies = Movie.with_ratings(@ratings_to_show.keys)
+      end
       if sort == 'title'
         @movies = @movies.order({:title => :asc})
       end
