@@ -10,8 +10,12 @@ class MoviesController < ApplicationController
       sort = ''
       @title_header = ''
       @release_date_header = ''
-      @ratings_to_show = {}
       @all_ratings = Movie.all_ratings
+      @ratings_to_show = {}
+      
+      for rating in @all_ratings
+        @ratings_to_show[rating] = 1
+      end
 
       if session[:sort]
         sort = session[:sort]
@@ -30,9 +34,6 @@ class MoviesController < ApplicationController
       end
       if params[:ratings]
         @ratings_to_show = params[:ratings]
-      end
-      if @ratings_to_show.empty?
-        @ratings_to_show = Hash[@all_ratings.map {|rating| [rating, rating]}]
       end
 
       if params[:sort] != session[:sort]
