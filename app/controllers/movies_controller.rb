@@ -12,10 +12,6 @@ class MoviesController < ApplicationController
       @release_date_header = ''
       @all_ratings = Movie.all_ratings
       @ratings_to_show = {}
-      
-      for rating in @all_ratings
-        @ratings_to_show[rating] = 1
-      end
 
       if session[:sort]
         sort = session[:sort]
@@ -45,9 +41,7 @@ class MoviesController < ApplicationController
         redirect_to :sort => sort, :ratings => @ratings_to_show and return
       end
 
-      if !@ratings_to_show.empty?
-        @movies = Movie.with_ratings(@ratings_to_show.keys)
-      end
+      @movies = Movie.with_ratings(@ratings_to_show)
       if sort == 'title'
         @movies = @movies.order({:title => :asc})
       end
